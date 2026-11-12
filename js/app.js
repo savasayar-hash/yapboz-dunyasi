@@ -1357,7 +1357,7 @@
         const patch = {}; patch[k] = on;
         store.saveSettings(patch);
         audioEnabled(patch);
-        if (k === 'music') music(on);
+        if (k === 'music') { music(on); syncMusicUI(); }
         if (k === 'sound' && on) { sfx('pop'); buzz(15); }
         if (k === 'voice' && on) speak('Merhaba!');
       });
@@ -1413,6 +1413,7 @@
      Eylemler (tek tıklama dinleyicisi)
      --------------------------------------------------------- */
   const ACTIONS = {
+    'toggle-music': () => setMusic(!state.settings.music),
     'open-gate': () => go('gate'),
     'mascot': mascotTap,
     'play': () => go('map'),
@@ -1447,6 +1448,25 @@
   /* ---------------------------------------------------------
      Genel dinleyiciler
      --------------------------------------------------------- */
+  /** Müzik aç/kapat: ayar + ses modülü + tüm 🎵 düğmeleri + panel anahtarı senkron. */
+  function setMusic(on) {
+    store.saveSettings({ music: !!on });
+    audioEnabled({ music: !!on });
+    music(!!on);
+    syncMusicUI();
+  }
+
+  function syncMusicUI() {
+    const on = !!state.settings.music;
+    qsa('.btn-music').forEach((b) => {
+      b.textContent = on ? '🎵' : '🔇';
+      b.classList.toggle('off', !on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    const cb = $('set-music');
+    if (cb) cb.checked = on;
+  }
+
   const GESTURE_EVENTS = ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown'];
 
   function audioGesture(e) {
@@ -1534,6 +1554,7 @@
   function init() {
     state.settings = store.settings();
     audioEnabled({ sound: !!state.settings.sound, music: !!state.settings.music, voice: !!state.settings.voice });
+    syncMusicUI();
     buildSky();
     buildHome();
     buildKeypad();

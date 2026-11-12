@@ -181,6 +181,8 @@ body[data-screen="play"] .sky { visibility: hidden; }
   position: absolute; z-index: 5;
   top: calc(10px + var(--sat)); left: calc(10px + var(--sal));
 }
+.btn-corner.btn-corner-left { right: auto; }
+.btn-music.off { opacity: .6; }
 
 .pill {
   display: inline-flex; align-items: center; justify-content: center; gap: .3em;
