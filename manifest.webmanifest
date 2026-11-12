@@ -1,0 +1,21 @@
+{
+  "name": "Yapboz Dünyası",
+  "short_name": "Yapboz",
+  "description": "4 yaş için eğitici yapboz oyunu: 100 seviye, 10 dünya, kendi fotoğraflarınızla yapboz.",
+  "lang": "tr",
+  "dir": "ltr",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "any",
+  "background_color": "#BDE9FF",
+  "theme_color": "#7CCBFF",
+  "categories": ["education", "games", "kids"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

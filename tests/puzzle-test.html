@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>YB.Puzzle test</title>
+<style>
+  html,body{margin:0;height:100%;}
+  body{height:100dvh;display:flex;flex-direction:column;font:14px system-ui,sans-serif;background:linear-gradient(160deg,#8fd3ff,#c9f7c0);overflow:hidden;}
+  #bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:6px;background:rgba(255,255,255,.75);box-shadow:0 2px 6px rgba(0,0,0,.15);}
+  #bar button,#bar select{font:inherit;padding:8px 10px;border-radius:10px;border:1px solid #9ab;background:#fff;cursor:pointer;min-height:40px;}
+  #bar button.on{background:#ffe17a;}
+  #bar label{display:flex;align-items:center;gap:4px;}
+  #main{flex:1;display:flex;min-height:0;}
+  #wrap{flex:1;display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;}
+  #stage{position:relative;width:100%;height:100%;}
+  #stage.framed{outline:2px dashed rgba(0,0,0,.35);flex:none;}
+  #log{width:260px;overflow:auto;background:rgba(0,0,0,.72);color:#cfe;font:12px/1.35 ui-monospace,Consolas,monospace;padding:6px;margin:0;white-space:pre-wrap;}
+  #log.hidden{display:none;}
+  @media (max-width:700px){#main{flex-direction:column}#log{width:auto;height:90px}}
+</style>
+</head>
+<body>
+<div id="bar">
+  <button data-cfg="2,1,rect">2×1 rect</button>
+  <button data-cfg="3,3,jigsaw">3×3 jigsaw</button>
+  <button data-cfg="6,5,jigsaw">6×5 jigsaw</button>
+  <button data-cfg="4,3,jigsaw">4×3 jigsaw</button>
+  <button id="hint">💡 Hint</button>
+  <button id="solve">Solve</button>
+  <button id="destroy">Destroy</button>
+  <label><input type="checkbox" id="tut"> tutorial</label>
+  <label><input type="checkbox" id="grid" checked> grid</label>
+  <label>ghost <input type="range" id="ghost" min="0" max="1" step="0.05" value="0.4" style="width:70px"></label>
+  <label>seed <input type="number" id="seed" value="1" style="width:56px"></label>
+  <select id="frame">
+    <option value="">Fill</option>
+    <option value="360x640">Phone P 360×640</option>
+    <option value="740x330">Phone L 740×330</option>
+    <option value="768x960">Tablet P 768×960</option>
+    <option value="1024x700">Tablet L 1024×700</option>
+  </select>
+  <button id="logbtn">Log</button>
+</div>
+<div id="main">
+  <div id="wrap"><div id="stage"></div></div>
+  <pre id="log"></pre>
+</div>
+<script src="../js/puzzle.js"></script>
+<script>
+(function () {
+  'use strict';
+  var stage = document.getElementById('stage');
+  var logEl = document.getElementById('log');
+  var puzzle = null, current = [3, 3, 'jigsaw'], t0 = 0;
+
+  function log(msg) {
+    var t = ((performance.now() - t0) / 1000).toFixed(2);
+    logEl.textContent = t + 's ' + msg + '\n' + logEl.textContent;
+  }
+
+  function makeTestImage() {
+    var c = document.createElement('canvas');
+    c.width = 1200; c.height = 900;
+    var x = c.getContext('2d');
+    var g = x.createLinearGradient(0, 0, 1200, 900);
+    g.addColorStop(0, '#ff5e7e'); g.addColorStop(0.25, '#ffb347'); g.addColorStop(0.5, '#ffe66d');
+    g.addColorStop(0.75, '#4ecdc4'); g.addColorStop(1, '#5d5dff');
+    x.fillStyle = g; x.fillRect(0, 0, 1200, 900);
+    // çapraz şeritler
+    x.save(); x.globalAlpha = 0.12; x.fillStyle = '#fff';
+    for (var i = -900; i < 1200; i += 80) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i + 40, 0); x.lineTo(i + 940, 900); x.lineTo(i + 900, 900); x.fill(); }
+    x.restore();
+    // rastgele daireler (sabit)
+    var s = 7; function rnd() { s = (s * 16807) % 2147483647; return s / 2147483647; }
+    for (i = 0; i < 70; i++) {
+      x.beginPath(); x.arc(rnd() * 1200, rnd() * 900, 10 + rnd() * 50, 0, Math.PI * 2);
+      x.fillStyle = 'hsla(' + Math.floor(rnd() * 360) + ',85%,60%,0.55)'; x.fill();
+    }
+    // büyük güneş
+    x.beginPath(); x.arc(600, 450, 190, 0, Math.PI * 2); x.fillStyle = '#ffd23f'; x.fill();
+    x.lineWidth = 14; x.strokeStyle = '#ff8c00'; x.stroke();
+    x.fillStyle = '#333'; x.beginPath(); x.arc(540, 410, 22, 0, 7); x.arc(660, 410, 22, 0, 7); x.fill();
+    x.beginPath(); x.lineWidth = 12; x.arc(600, 470, 80, 0.15 * Math.PI, 0.85 * Math.PI); x.stroke();
+    // 6×5 numaralı hücreler
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    for (var r = 0; r < 5; r++) for (var col = 0; col < 6; col++) {
+      var cx = col * 200 + 100, cy = r * 180 + 90, n = r * 6 + col + 1;
+      x.beginPath(); x.arc(cx, cy, 46, 0, Math.PI * 2);
+      x.fillStyle = 'hsla(' + (n * 37 % 360) + ',80%,45%,0.85)'; x.fill();
+      x.lineWidth = 5; x.strokeStyle = '#fff'; x.stroke();
+      x.fillStyle = '#fff'; x.font = 'bold 52px system-ui,sans-serif';
+      x.fillText(String(n), cx, cy + 3);
+    }
+    // köşe şekilleri
+    x.fillStyle = '#2ecc71'; x.fillRect(20, 20, 120, 120);
+    x.fillStyle = '#9b59b6'; x.beginPath(); x.moveTo(1180, 20); x.lineTo(1180, 160); x.lineTo(1040, 20); x.fill();
+    x.fillStyle = '#e74c3c'; x.beginPath(); x.arc(80, 820, 60, 0, 7); x.fill();
+    x.fillStyle = '#34495e'; x.fillRect(1060, 760, 120, 120);
+    x.font = 'bold 40px system-ui'; x.fillStyle = '#fff'; x.fillText('YAPBOZ TEST', 600, 860);
+    return c;
+  }
+  var IMG = makeTestImage();
+
+  function applyFrame() {
+    var v = document.getElementById('frame').value;
+    if (!v) { stage.classList.remove('framed'); stage.style.width = stage.style.height = '100%'; return; }
+    var p = v.split('x');
+    stage.classList.add('framed');
+    stage.style.width = p[0] + 'px'; stage.style.height = p[1] + 'px';
+  }
+
+  function start(cfg) {
+    current = cfg || current;
+    if (puzzle) { puzzle.destroy(); puzzle = null; }
+    logEl.textContent = '';
+    t0 = performance.now();
+    var o = {
+      image: IMG, cols: current[0], rows: current[1], shape: current[2],
+      ghost: +document.getElementById('ghost').value,
+      grid: document.getElementById('grid').checked,
+      snap: 0.4, seed: +document.getElementById('seed').value || 1,
+      tutorial: document.getElementById('tut').checked,
+      onPickup: function (i) { log('onPickup ' + JSON.stringify(i)); },
+      onDrop: function (i) { log('onDrop ' + JSON.stringify(i)); },
+      onSnap: function (i) {
+        log('onSnap ' + JSON.stringify({ index: i.index, placed: i.placed, total: i.total, x: Math.round(i.x), y: Math.round(i.y) }));
+        var d = document.createElement('div'); // yuva merkezini doğrulamak için işaret
+        d.style.cssText = 'position:fixed;left:' + (i.x - 6) + 'px;top:' + (i.y - 6) + 'px;width:12px;height:12px;border-radius:50%;background:#f0f;z-index:999999;pointer-events:none;transition:opacity .6s;';
+        document.body.appendChild(d);
+        setTimeout(function () { d.style.opacity = 0; }, 300);
+        setTimeout(function () { d.remove(); }, 1000);
+      },
+      onComplete: function () { log('onComplete ✔'); }
+    };
+    var t = performance.now();
+    puzzle = YB.Puzzle.create(stage, o);
+    log('create ' + current.join('×') + ' in ' + (performance.now() - t).toFixed(1) + 'ms');
+    Array.prototype.forEach.call(document.querySelectorAll('[data-cfg]'), function (b) {
+      b.classList.toggle('on', b.getAttribute('data-cfg') === current.join(','));
+    });
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-cfg]'), function (b) {
+    b.addEventListener('click', function () {
+      var p = b.getAttribute('data-cfg').split(',');
+      start([+p[0], +p[1], p[2]]);
+    });
+  });
+  document.getElementById('hint').onclick = function () { log('hint() → ' + (puzzle ? puzzle.hint() : 'no puzzle')); };
+  document.getElementById('solve').onclick = function () { if (puzzle) puzzle.solve(); };
+  document.getElementById('destroy').onclick = function () {
+    if (puzzle) { puzzle.destroy(); puzzle = null; log('destroyed; children left: ' + stage.childNodes.length); }
+  };
+  document.getElementById('frame').onchange = applyFrame;
+  ['tut', 'grid', 'ghost', 'seed'].forEach(function (id) { document.getElementById(id).onchange = function () { start(); }; });
+  document.getElementById('logbtn').onclick = function () { logEl.classList.toggle('hidden'); };
+  window.addEventListener('error', function (e) { log('ERROR ' + e.message); });
+
+  applyFrame();
+  start();
+})();
+</script>
+</body>
+</html>

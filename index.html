@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#7CCBFF">
+<meta name="color-scheme" content="light">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Yapboz">
+<meta name="format-detection" content="telephone=no">
+<meta name="description" content="Yapboz Dünyası — 4 yaş için eğitici yapboz oyunu.">
+<title>Yapboz Dünyası</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&amp;display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-screen="home">
+
+<!-- Gökyüzü arka planı (bulutlar, baloncuklar, tepeler) -->
+<div class="sky" id="sky" aria-hidden="true"></div>
+
+<main id="app">
+
+  <!-- 1. ANA EKRAN -->
+  <section class="screen" id="screen-home" aria-label="Ana ekran">
+    <button class="btn btn-round btn-white btn-corner" data-action="open-gate" aria-label="Ebeveyn ayarları">⚙️</button>
+    <div class="home-inner">
+      <h1 class="title" id="home-title" aria-label="Yapboz Dünyası">Yapboz Dünyası</h1>
+      <div class="mascot-wrap" id="home-mascot" data-action="mascot" data-sfx="none" role="img" aria-label="Yapboz maskotu"></div>
+      <div class="home-buttons">
+        <button class="btn btn-xl btn-green btn-play" data-action="play" aria-label="Oyna"><span class="ico">▶</span><span>Oyna</span></button>
+        <button class="btn btn-lg btn-purple" data-action="album" aria-label="Çıkartma albümü"><span class="ico">📒</span><span>Albüm</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. HARİTA -->
+  <section class="screen" id="screen-map" aria-label="Harita">
+    <header class="topbar map-bar">
+      <button class="btn btn-round btn-white" data-action="home" aria-label="Ana ekran">🏠</button>
+      <div class="pill" id="map-stars">⭐ 0</div>
+      <button class="btn btn-round btn-purple" data-action="album" aria-label="Albüm">📒</button>
+    </header>
+    <div class="map-scroll scroll" id="map-scroll"></div>
+  </section>
+
+  <!-- 3. OYUN -->
+  <section class="screen" id="screen-play" aria-label="Oyun">
+    <header class="topbar play-bar">
+      <button class="btn btn-round btn-white" data-action="to-map" aria-label="Haritaya dön">🏠</button>
+      <div class="pill level-pill" aria-live="polite">
+        <span class="lp-emoji" id="play-world-emoji">🧩</span>
+        <span class="lp-text"><span class="lp-word">Seviye </span><span id="play-level-num">1</span></span>
+      </div>
+      <div class="bar-right">
+        <button class="btn btn-round btn-blue" data-action="preview" id="btn-preview" aria-label="Resmi göster">👁</button>
+        <button class="btn btn-round btn-yellow" data-action="hint" id="btn-hint" data-sfx="none" aria-label="İpucu">💡</button>
+      </div>
+    </header>
+    <div class="puzzle-host" id="puzzle-host"></div>
+    <div class="preview" id="preview" data-action="preview" hidden></div>
+    <div class="parts-badge" id="parts-badge" aria-hidden="true"></div>
+    <div class="play-loading" id="play-loading" aria-hidden="true"><span>🧩</span></div>
+  </section>
+
+  <!-- 5. ÇIKARTMA ALBÜMÜ -->
+  <section class="screen" id="screen-album" aria-label="Çıkartma albümü">
+    <header class="topbar album-bar">
+      <button class="btn btn-round btn-white" data-action="home" aria-label="Ana ekran">🏠</button>
+      <div class="pill"><span>📒</span><span id="album-count">0/100</span></div>
+      <button class="btn btn-round btn-green" data-action="play" aria-label="Haritaya git">🗺</button>
+    </header>
+    <div class="album-scroll scroll" id="album-scroll"></div>
+  </section>
+
+  <!-- 6. EBEVEYN KAPISI -->
+  <section class="screen" id="screen-gate" aria-label="Ebeveyn kapısı">
+    <button class="btn btn-round btn-white btn-corner-left" data-action="home" aria-label="Kapat">✕</button>
+    <div class="gate-card" id="gate-card">
+      <div class="gate-head">
+        <div class="gate-lock">🔐</div>
+        <p class="gate-title">Ebeveyn için</p>
+        <div class="gate-q" id="gate-q">7 + 8 = ?</div>
+        <div class="gate-display" id="gate-display"><span></span><span></span></div>
+      </div>
+      <div class="keypad" id="keypad"></div>
+    </div>
+  </section>
+
+  <!-- 7. EBEVEYN PANELİ -->
+  <section class="screen" id="screen-parent" aria-label="Ebeveyn paneli">
+    <header class="topbar parent-bar">
+      <h2 class="parent-title">⚙️ Ebeveyn Paneli</h2>
+      <button class="btn btn-md btn-white" data-action="home" aria-label="Kapat">✕ Kapat</button>
+    </header>
+    <div class="parent-scroll scroll">
+      <div class="parent-inner">
+
+        <section class="card">
+          <h3>📷 Resimlerim</h3>
+          <p class="muted">Aile fotoğrafları, oyuncaklar, evcil hayvanlar… Yüklediğiniz fotoğraflar yapboza dönüşür. Kamerayla çekebilir ya da galeriden seçebilirsiniz. Resimler yalnızca bu cihazda saklanır.</p>
+          <label class="btn btn-md btn-green file-btn" data-action="file">
+            <input type="file" id="file-input" accept="image/*" multiple>
+            <span>＋ Resim ekle</span>
+          </label>
+          <div class="thumbs" id="thumbs"></div>
+        </section>
+
+        <section class="card">
+          <h3>🖼 Resim modu</h3>
+          <div class="modes">
+            <label class="mode-opt">
+              <input type="radio" name="imageMode" value="builtin">
+              <span class="mode-box"><span class="mode-ico">📚</span><span class="mode-txt"><b>Eğitici</b><small>Sadece hazır eğitici resimler: hayvanlar, meyveler, renkler, şekiller, sayılar…</small></span></span>
+            </label>
+            <label class="mode-opt">
+              <input type="radio" name="imageMode" value="custom">
+              <span class="mode-box"><span class="mode-ico">📷</span><span class="mode-txt"><b>Resimlerim</b><small>Bütün seviyelerde sizin yüklediğiniz fotoğraflar sırayla kullanılır.</small></span></span>
+            </label>
+            <label class="mode-opt">
+              <input type="radio" name="imageMode" value="mixed">
+              <span class="mode-box"><span class="mode-ico">🔀</span><span class="mode-txt"><b>Karışık</b><small>Çift numaralı seviyelerde sizin fotoğraflarınız, tek numaralılarda eğitici resimler.</small></span></span>
+            </label>
+          </div>
+          <p class="note" id="mode-note" hidden></p>
+        </section>
+
+        <section class="card">
+          <h3>🔊 Ses</h3>
+          <label class="toggle"><span>🔔 Ses efektleri ve titreşim</span><input type="checkbox" id="set-sound"><span class="switch" aria-hidden="true"></span></label>
+          <label class="toggle"><span>🎵 Müzik</span><input type="checkbox" id="set-music"><span class="switch" aria-hidden="true"></span></label>
+          <label class="toggle"><span>🗣️ Konuşma (kelimeleri sesli söyler)</span><input type="checkbox" id="set-voice"><span class="switch" aria-hidden="true"></span></label>
+        </section>
+
+        <section class="card">
+          <h3>📈 İlerleme</h3>
+          <p id="progress-summary" class="muted"></p>
+          <div class="row-buttons">
+            <button class="btn btn-md btn-blue" data-action="unlock-all">🔓 Tüm seviyeleri aç</button>
+            <button class="btn btn-md btn-red" data-action="reset-progress">🗑 İlerlemeyi sıfırla</button>
+          </div>
+        </section>
+
+        <p class="fineprint">Yapboz Dünyası · çevrimdışı çalışır · reklam ve veri toplama yok</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- 4. KAZANMA KARTI -->
+<div class="overlay win-overlay" id="win" hidden>
+  <div class="win-card" id="win-card" role="dialog" aria-modal="true" aria-label="Tebrikler">
+    <div class="win-banner" id="win-banner" hidden></div>
+    <div class="win-pic" id="win-pic"></div>
+    <div class="win-main">
+      <div class="win-word" id="win-word"></div>
+      <div class="win-stars" id="win-stars"></div>
+      <div class="win-final" id="win-final" hidden></div>
+      <div class="win-actions">
+        <button class="btn btn-round btn-orange" data-action="win-replay" aria-label="Tekrar oyna">↻</button>
+        <button class="btn btn-round btn-blue" data-action="win-map" aria-label="Harita">🗺</button>
+        <button class="btn btn-round btn-green btn-next" id="win-next" data-action="win-next" aria-label="Sonraki seviye">▶</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Onay penceresi -->
+<div class="overlay confirm-overlay" id="confirm" hidden>
+  <div class="confirm-card" role="alertdialog" aria-modal="true">
+    <p id="confirm-msg"></p>
+    <div class="row-buttons">
+      <button class="btn btn-md btn-white" id="confirm-cancel">Vazgeç</button>
+      <button class="btn btn-md btn-red" id="confirm-ok">Evet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Meşgul (resim işleniyor) -->
+<div class="overlay busy-overlay" id="busy" hidden>
+  <div class="busy-card"><div class="spinner">🧩</div><p id="busy-msg">Resimler hazırlanıyor…</p></div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/storage.js"></script>
+<script src="js/content.js"></script>
+<script src="js/levels.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/puzzle.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
