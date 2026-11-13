@@ -1,7 +1,7 @@
 /* Yapboz Dünyası — service worker (uygulama kabuğu, stale-while-revalidate) */
 'use strict';
 
-const CACHE = 'yapboz-v1';
+const CACHE = 'yapboz-v2';
 const FONT_CACHE = 'yapboz-fonts-v1';
 
 const SHELL = [

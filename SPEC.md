@@ -73,7 +73,7 @@ YB.Content.cover(imgOrCanvas, w=1200, h=900) // → HTMLCanvasElement; ortadan k
 ```
 
 Dünyalar ve öğeler (sıra sabittir):
-1. **Çiftlik** 🐄: inek, köpek, kedi, tavuk, at, koyun, domuz, ördek, tavşan, keçi
+1. **Çiftlik** 🐄: inek, köpek, kedi, tavuk, at, koyun, hindi, ördek, tavşan, keçi
 2. **Meyveler** 🍎: elma, muz, çilek, üzüm, portakal, karpuz, armut, kiraz, ananas, şeftali
 3. **Renkler** 🎨: kırmızı, mavi, sarı, yeşil, turuncu, mor, pembe, kahverengi, siyah, beyaz (renk lekesi + o renkte bir nesne emojisi)
 4. **Şekiller** 🔷: daire, kare, üçgen, dikdörtgen, yıldız, kalp, oval, baklava, beşgen, altıgen (canvas path ile büyük şekil, yüzlü/sevimli)

@@ -36,7 +36,7 @@ YB.Content = (function () {
   add(1, 'emoji', 'TAVUK',  '🐔', 'Bu bir tavuk! Tavuklar gıt gıt gıdak der ve bize yumurta verir.');
   add(1, 'emoji', 'AT',     '🐴', 'Bu bir at! Atlar kişner ve dörtnala çok hızlı koşar.');
   add(1, 'emoji', 'KOYUN',  '🐑', 'Bu bir koyun! Koyunlar mee der, yünlerinden sıcacık kazaklar yapılır.');
-  add(1, 'emoji', 'DOMUZ',  '🐷', 'Bu bir domuz! Domuzlar çamurda yuvarlanmayı çok sever.');
+  add(1, 'emoji', 'HİNDİ',  '🦃', 'Bu bir hindi! Hindiler glu glu der ve kuyruklarını yelpaze gibi açar.');
   add(1, 'emoji', 'ÖRDEK',  '🦆', 'Bu bir ördek! Ördekler vak vak der ve suda yüzer.');
   add(1, 'emoji', 'TAVŞAN', '🐰', 'Bu bir tavşan! Tavşanlar havuç yer ve hop hop zıplar.');
   add(1, 'emoji', 'KEÇİ',   '🐐', 'Bu bir keçi! Keçiler mee der ve kayalara tırmanmayı sever.');
